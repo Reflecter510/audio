@@ -26,7 +26,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 batch_size = 60           #每批多少张图
 nb_classes = 2            #分多少类
 nb_epoch1 = 2              #迭代次数
-nb_epoch2 = 100
+nb_epoch2 = 1#00
 # 输入数据的维度
 img_rows, img_cols = 256, 80
 # 使用的卷积滤波器的数量
@@ -42,8 +42,8 @@ struct_name="save_struct.h5"
 weights_name="save_weights.h5"
 
 # *************** ImageDataGenerator *************** #
-train_dir = r'./train/'
-validation_dir = r'./test/'
+train_dir = r'./data_set/train/'
+validation_dir = r'./data_set/test/'
 # 训练集数据增强
 train_datagen = ImageDataGenerator(
      rescale=1./255,
@@ -178,7 +178,7 @@ for layer in model.layers[249:]:
 # 我们需要重新编译模型，才能使上面的修改生效   sparse_categorical_crossentropy
 # 让我们设置一个很低的学习率，使用 SGD 来微调
 from keras.optimizers import SGD
-model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy',metrics=['acc'])
+model.compile(optimizer=SGD(learning_rate=0.0001, momentum=0.9), loss='categorical_crossentropy',metrics=['acc'])
 
 # 我们继续训练模型，这次我们训练最后两个 Inception block
 # 和两个全连接层

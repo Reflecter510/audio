@@ -4,7 +4,9 @@ venv
 *.png
 __pycache__
 *.zip
+*.tflite
 old
 .hmm
 .gmm
 .rar
+*.h5
