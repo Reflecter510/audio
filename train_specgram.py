@@ -25,18 +25,18 @@ from matplotlib import pyplot as plt
 #######################################################################################################################
 batch_size = 60  # 每批多少张图
 nb_classes = 2  # 分多少类
-nb_epoch = 40  # 迭代次数
+nb_epoch = 5  # 迭代次数
 width = 256
 height = 256
 input_shape = (256, 256, 3)
 input_size = (256, 256)
-model_name = "save_model.h5"
-struct_name = "save_struct.h5"
-weights_name = "save_weights.h5"
+model_name="model/specgram/save_model.h5"
+struct_name="model/specgram/save_struct.h5"
+weights_name="model/specgram/save_weights.h5"
 
 # *************** ImageDataGenerator *************** #
-train_dir = r'./train/'
-validation_dir = r'./test/'
+train_dir = r'./data_set/specgram/train/'
+validation_dir = r'./data_set/specgram/test/'
 # 训练集数据增强
 train_datagen = ImageDataGenerator(
     rescale=1. / 255,
@@ -95,7 +95,11 @@ x=Dropout(0.5)(x)
 output=Dense(nb_classes, activation="softmax", name="fc2")(x)
 
 model=Model(inputs=input,outputs=output,name="net")
-model.compile(loss="categorical_crossentropy", optimizer="Adam", metrics=["accuracy"])
+model.compile(loss="categorical_crossentropy", optimizer="Adam", metrics=["acc"])
+
+file = open(struct_name,"w")
+file.write(model.to_json())
+file.close()
 
 history = model.fit_generator(
     train_generator,
@@ -104,4 +108,25 @@ history = model.fit_generator(
     validation_data=validation_generator,
     validation_steps=vali_sum / batch_size,
 )
+'''画图'''
+# summarize history for accuracy
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.savefig("model/specgram/specgram_acc.png")
+plt.cla()
+# summarize history for loss
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.savefig("model/specgram/specgram_loss.png")
+plt.cla()
+
 model.save(model_name)
+model.save_weights(weights_name)
