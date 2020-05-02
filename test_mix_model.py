@@ -19,23 +19,22 @@ from keras.models import load_model
 import numpy as np
 from keras.backend import set_learning_phase
 import matplotlib.pyplot as plt
-
 '''语谱图  训练集  验证集 目录'''
-train_dir = r'./train/'
-validation_dir = r'./test/'
+train_dir = r'./data_set/specgram/train/'
+validation_dir = r'./data_set/specgram/test/'
 '''MFCC    训练集  验证集 目录'''
-mfcc_train_dir = r'./train_mfcc/'
-mfcc_validation_dir = r'./test_mfcc/'
+mfcc_train_dir = r'./data_set/mfcc/train/'
+mfcc_validation_dir = r'./data_set/mfcc/test/'
 
-model_dir="save_model_mix.h5"
+model_dir="model/mix/save_model_mix.h5"
 model = load_model(model_dir)
 
 batch_size = 120           #每批多少张图
 nb_classes = 2            #分多少类
 
 '''语谱图数据集'''
-input_shape=(256,80,3)
-input_size=(256,80)
+input_shape=(256,256,3)
+input_size=(256,256)
 # 训练集数据增强
 train_datagen = ImageDataGenerator(
      rescale=1./255,
@@ -65,8 +64,8 @@ train_sum=len(train_generator.filenames)
 vali_sum=len(validation_generator.filenames)
 
 '''MFCC数据集'''
-mfcc_input_shape=(256,80,3)
-mfcc_input_size=(256,80)
+mfcc_input_shape=(256,256,3)
+mfcc_input_size=(256,256)
 # 训练集数据增强
 mfcc_train_datagen = ImageDataGenerator(
      rescale=1./255,
