@@ -24,17 +24,6 @@ def pic_cut(picpath):
 
 a=[]
 
-
-'''
-for files in os.listdir(path):
-    print(files)
-    source_file_path = path + files
-    destin_path = path + '\\' + files[:-3] + 'wav'
-    sound = AudioSegment.from_wav(source_file_path)
-    sound.export(destin_path, format='wav')
-'''
-
-
 for files in os.listdir(filepath):
     print('filename:', files)
     wav_path = filepath + files

@@ -2,8 +2,6 @@ import wave
 import numpy as np
 from matplotlib import pyplot as plt
 
-
-
 # 自定义函数，计算数值的符号。
 def sgn(data):
     if data >= 0 :

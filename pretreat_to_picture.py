@@ -1,33 +1,16 @@
 import wave
-
 import numpy as np
 import sklearn
-
-from GMMs import zcr
-import GMMs.segment_axis
-np.set_printoptions(threshold = 1e6)     #  threshold表示输出数组的元素数目
-import scipy.signal as signal
+import zcr
 import librosa
 from python_speech_features import mfcc,logfbank,get_filterbanks,delta
 from matplotlib import pyplot as plt
-from scipy.fftpack import dct
 import librosa.display
-import GMMs.zcr
-
-def wavread(filename):
-    f = wave.open(filename,'rb')
-    params = f.getparams()
-    nchannels, sampwidth, framerate, nframes = params[:4]
-    strData = f.readframes(nframes)#读取音频，字符串格式
-    waveData = np.fromstring(strData,dtype=np.int16)#将字符串转化为int
-    f.close()
-    waveData = waveData*1.0/(max(abs(waveData)))#wave幅值归一化
-    waveData = np.reshape(waveData,[nframes,nchannels]).T
-    return waveData
+np.set_printoptions(threshold = 1e6)     #  threshold表示输出数组的元素数目
 
 class PreProcess():
     y=[]            #音频
-    sr=16000            #采样率
+    sr=16000        #采样率
     nf=0            #帧的总长度
     nw = 256
     inc = 128
@@ -69,15 +52,13 @@ class PreProcess():
         inc:相邻帧的间隔（同上定义）
         '''
 
-        #self.y=wavread(self.file_path)[0]
-
         self.nw=nw
         self.inc=inc
-        signal_length=len(self.y) #信号总长度
+        signal_length=len(self.y)       #信号总长度
         print(signal_length)
-        if signal_length <= self.nw: #若信号长度小于一个帧的长度，则帧数定义为1
+        if signal_length <= self.nw:    #若信号长度小于一个帧的长度，则帧数定义为1
             self.nf = 1
-        else: #否则，计算帧的总长度
+        else:                           #否则，计算帧的总长度
             self.nf = int(np.ceil((1.0*signal_length-self.nw+self.inc)/self.inc))
 
         pad_length=int((self.nf-1)*self.inc+self.nw) #所有帧加起来总的铺平后的长度
@@ -129,7 +110,7 @@ class PreProcess():
     # 提取MFCC和滤波器组特征
     def get_mfcc(self,ifPlot=False):
 
-        feat_mfcc = mfcc(self.y, self.sr,)
+        feat_mfcc = mfcc(self.y, self.sr,)  # mfcc
         feat_mfcc_d = delta(feat_mfcc, 1)   # 一阶差分
         feat_mfcc_dd = delta(feat_mfcc, 2)  # 二阶差分
         mfcc_feature = np.column_stack((feat_mfcc, feat_mfcc_d, feat_mfcc_dd))
@@ -190,15 +171,16 @@ class PreProcess():
 def normalize(x, axis=0):
     return sklearn.preprocessing.minmax_scale(x, axis=axis)
 
-
-def Xdb (y1):
+def Xdb (y1,gen_data=True):
     ''' 频谱图'''
     X = librosa.stft(y1.y)
-    Xdb = librosa.amplitude_to_db(abs(X))
-    plt.figure(figsize=(14, 5))
-    librosa.display.specshow(Xdb, sr=y1.sr, x_axis='time', y_axis='hz')
-    plt.colorbar()
-    plt.show()
+    Xdb = librosa.amplitude_to_db(abs(X))            # 获得语谱图
+    if gen_data==False:
+        plt.figure(figsize=(14, 5))
+    librosa.display.specshow(Xdb, sr=y1.sr, x_axis='time', y_axis='hz')   # 绘制语谱图
+    if gen_data==False:
+        plt.colorbar()
+        plt.show()
 
 def Spectral_Centroids(y1):
     '''频谱质心'''
@@ -211,13 +193,13 @@ def Spectral_Centroids(y1):
     plt.plot(t, normalize(spectral_centroids), color='r')
     plt.show()
 
-
-def MFCC(y1,save_dir=None):
+def MFCC(y1,save_dir=None,ifPlot=False):
     '''MFCC '''
-    mfccs = librosa.feature.mfcc(y1.y, sr=y1.sr)
+    mfccs = librosa.feature.mfcc(y1.y, sr=y1.sr)        # 获得 MFCC 谱图
     # Displaying  the MFCCs:
     librosa.display.specshow(mfccs, sr=y1.sr, x_axis='time')
-
+    if ifPlot == True:
+        plt.show()
     if save_dir!=None:
         plt.savefig(save_dir)
 
@@ -234,84 +216,40 @@ def Spectral_Rolloff(y1):
 
 
 if __name__=="__main__":
-    np.set_printoptions(threshold=1e6)  # threshold表示输出数组的元素数目
-
-    file_path='霸王别姬.wav'
+    file_path='data_audio/霸王别姬.wav'
     #file_path = '测试.wav'
     y1=PreProcess(file_path)
 
-
-    #ifPlot=True
+    #ifPlot=True                                          #是否绘制图像
 #########################################预处理
-    y1.y,y1.sr=y1.sampling(file_path,ifPlot=True,sr=None) #采样
-    y1.pre_emphasis( ifPlot=True )       #预增强
-
-    #####
-    y1.enframe(nw=256,inc=128, ifPlot=True )            #分帧
-    y1.force_window( ifPlot=True )       #加窗
+    y1.y,y1.sr=y1.sampling(file_path,ifPlot=False,sr=None) #采样
+    y1.pre_emphasis( ifPlot=False )                        #预增强
+    y1.enframe(nw=256,inc=128, ifPlot=False )              #分帧
+    y1.force_window( ifPlot=False )                        #加窗
 
 #########################################特征提取
-    file_path='霸王别姬.wav'
-    '''   '''
+    '''短时平均能量和短时平均过零率的特征提取在zcr中  '''
     wave_data= zcr.load_wave_data(file_path)
-    zcr.calEnergy(wave_data)  # 短时平均能量
+    zcr.calEnergy(wave_data)                                #短时平均能量
     zeroCrossingRate = zcr.calZeroCrossingRate(wave_data)   #短时平均过零率
 
+    y1.sampling(y1.file_path)
+    Xdb(y1)                                                 #频谱图
+    Spectral_Centroids(y1)                                  #频谱质心
 
-    #file_path = '测试.wav'
-    y1.sampling(file_path, sr=None)
-
-    Xdb(y1)               #频谱图
-    '''
-    Spectral_Centroids(y1)      #频谱质心
-    '''
+    #设置图像显示格式
     plt.subplot(1, 1, 1)
     plt.axis('off')
     fig = plt.gcf()
-    fig.set_size_inches(5.12,5.12)  # 输出width*height像素
+    fig.set_size_inches(2.56,2.56)  # 输出width*height像素
     plt.gca().xaxis.set_major_locator(plt.NullLocator())
     plt.gca().yaxis.set_major_locator(plt.NullLocator())
     plt.subplots_adjust(top=1, bottom=0, left=0, right=1, hspace=0, wspace=0)
     plt.margins(0, 0)
-    MFCC(y1)                      #MFCC
-    #Spectral_Rolloff(y1)
 
+    y1.sampling(y1.file_path)
+    MFCC(y1,ifPlot=True)                                    #MFCC
 
+    #Spectral_Rolloff(y1)                                   #光谱衰减
 
-
-
-
-
-
-
-
-
-
-
-
-    # y1.get_mfcc( ifPlot=True )            #得mfcc
-    #y1.calZeroCrossingRate(ifPlot=True)
-    '''
-    zcr=librosa.feature.zero_crossing_rate(y1.y)
-    print(np.shape(zcr))
-    print(zcr)
-    plt.plot(zcr)
-    plt.title("zero crossing rate")
-    plt.show()
-    '''
-    # Plot the signal:
-    '''短时过零率
-    plt.figure(figsize=(14, 5))
-    librosa.display.waveplot(y1.y, sr=y1.sr)
-    # Zooming in
-    n0 = 9000
-    n1 = 9100
-    plt.figure(figsize=(14, 5))
-    plt.plot(y1.y[n0:n1])
-    plt.grid()
-    plt.show()
-    zero_crossings = librosa.zero_crossings(y1.y[n0:n1], pad=False)
-    print(sum(zero_crossings))
-    plt.plot(zero_crossings)
-    '''
 

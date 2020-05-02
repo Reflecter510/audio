@@ -70,26 +70,33 @@ train_sum = len(train_generator.filenames)
 vali_sum = len(validation_generator.filenames)
 
 model = Sequential()
-input=(Input((256,256,3),name='input'))
-x=Conv2D(64, (3, 3), padding="same", activation="elu",  name='conv1')(input)
+input=(Input(input_shape,name='input'))
+x=Conv2D(64, (3, 3), padding="same", activation="relu",  name='conv1')(input)
 x=MaxPooling2D(pool_size=(2, 2), strides=(2, 2), name="pool1")(x)
 
-x=Conv2D(128, (3, 3), padding="same", activation="elu", name="conv2")(x)
+x=Conv2D(128, (3, 3), padding="same", activation="relu", name="conv2")(x)
 x=MaxPooling2D(pool_size=(4, 4), strides=(4, 4), name="pool2")(x)
 
-x=Conv2D(256, (3, 3), padding="same", activation="elu", name="conv3")(x)
+x=Dropout(0.25)(x)
+
+x=Conv2D(256, (3, 3), padding="same", activation="relu", name="conv3")(x)
 x=MaxPooling2D(pool_size=(4, 4), strides=(4, 4), name="pool3")(x)
 
-x=Conv2D(512, (3, 3), padding="same", activation="elu", name="conv4")(x)
+x=Dropout(0.25)(x)
+
+x=Conv2D(512, (3, 3), padding="same", activation="relu", name="conv4")(x)
 x=MaxPooling2D(pool_size=(4, 4), strides=(4, 4), name="pool4")(x)
+
+x=Dropout(0.25)(x)
 
 x=Flatten()(x)
 x=Dense(128, activation="relu", name="fc1")(x)
-
+x=Dropout(0.5)(x)
 output=Dense(nb_classes, activation="softmax", name="fc2")(x)
 
 model=Model(inputs=input,outputs=output,name="net")
 model.compile(loss="categorical_crossentropy", optimizer="Adam", metrics=["accuracy"])
+
 history = model.fit_generator(
     train_generator,
     steps_per_epoch=train_sum / batch_size,
