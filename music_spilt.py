@@ -4,17 +4,16 @@ import wave
 import numpy as np
 import pylab as plt
 
-CutTimeDef = 8  # 以8s截断文件
-# CutFrameNum =0
+'''
+音频等间隔分割
+'''
 
+CutTimeDef = 8  # 以8s截断文件
 path = r"train_no"
+
 files = os.listdir(path)
 files = [path + "\\" + f for f in files if f.endswith('.wav')]
-#def SetFileName(WavFileName):
- #   for i in range(len(files)):
- #       FileName = files[i]
- #       print("SetFileName File Name is ", FileName)
- #       FileName = WavFileName;
+
 def CutFile():
     for i in range(len(files)):
         FileName = files[i]
@@ -35,18 +34,18 @@ def CutFile():
         print("nframes=%d" % (nframes))
         str_data = f.readframes(nframes)
         f.close()  # 将波形数据转换成数组
-        # Cutnum =nframes/framerate/CutTimeDef
+
         # 需要根据声道数和量化单位，将读取的二进制数据转换为一个可以计算的数组
         wave_data = np.fromstring(str_data, dtype=np.short)
         wave_data.shape = -1, 2
         wave_data = wave_data.T
         temp_data = wave_data.T
-        # StepNum = int(nframes/200)
+
         StepNum = CutFrameNum
         StepTotalNum = 0;
         haha = 0
         while StepTotalNum < nframes:
-            # for j in range(int(Cutnum)):
+
             print("Stemp=%d" % (haha))
             FileName =  files[i][0:-4] + "-" + str(haha + 1) + ".wav"
             print(FileName)
@@ -54,14 +53,15 @@ def CutFile():
             haha = haha + 1;
             StepTotalNum = haha * StepNum;
             temp_dataTemp.shape = 1, -1
-            temp_dataTemp = temp_dataTemp.astype(np.short)  # 打开WAV文档
-            #if not os.path.exists(FileName):
-             #  os.mkdir(FileName)
-            f = wave.open(FileName, "wb")  #
+            temp_dataTemp = temp_dataTemp.astype(np.short)
+
+            f = wave.open(FileName, "wb")  # 打开WAV文档
+
             # 配置声道数、量化位数和取样频率
             f.setnchannels(nchannels)
             f.setsampwidth(sampwidth)
             f.setframerate(framerate)
+
             # 将wav_data转换为二进制数据写入文件
             f.writeframes(temp_dataTemp.tostring())
             f.close()
@@ -69,5 +69,4 @@ def CutFile():
 
 if __name__ == '__main__':
     CutFile()
-
     print("Run Over")

@@ -23,17 +23,17 @@ import matplotlib.pyplot as plt
 #os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 #os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 '''语谱图  模型文件夹'''
-model_dir=('save_struct.h5')
-weights_dir=("save_weights.h5")
+model_dir=('model/specgram/save_struct.h5')
+weights_dir=("model/specgram/save_weights.h5")
 '''MFCC    模型文件夹'''
-mfcc_model_dir=('save_struct_mfcc.h5')
-mfcc_weights_dir=("save_weights_mfcc.h5")
+mfcc_model_dir=('model/mfcc/save_struct.h5')
+mfcc_weights_dir=("model/mfcc/save_weights.h5")
 '''语谱图  训练集  验证集 目录'''
-train_dir = r'./train/'
-validation_dir = r'./test/'
+train_dir = r'./data_set/specgram/train/'
+validation_dir = r'./data_set/specgram/test/'
 '''MFCC    训练集  验证集 目录'''
-mfcc_train_dir = r'./train_mfcc/'
-mfcc_validation_dir = r'./test_mfcc/'
+mfcc_train_dir = r'./data_set/mfcc/train/'
+mfcc_validation_dir = r'./data_set/mfcc/test/'
 
 file = open(model_dir,"r")
 struct=file.read()
@@ -88,14 +88,15 @@ for layer in model.layers[lock:]:
 '''编译模型'''
 from keras.optimizers import SGD,rmsprop
 model.compile(optimizer=rmsprop(lr=0.0001), loss='categorical_crossentropy',metrics=['acc'])
+
 '''训练设置'''
-nb_epoch=40
+nb_epoch=2
 batch_size = 120           #每批多少张图
 nb_classes = 2            #分多少类
 
 '''语谱图数据集'''
-input_shape=(256,80,3)
-input_size=(256,80)
+input_shape=(256,256,3)
+input_size=(256,256)
 # 训练集数据增强
 train_datagen = ImageDataGenerator(
      rescale=1./255,
@@ -125,8 +126,8 @@ train_sum=len(train_generator.filenames)
 vali_sum=len(validation_generator.filenames)
 
 '''MFCC数据集'''
-mfcc_input_shape=(256,80,3)
-mfcc_input_size=(256,80)
+mfcc_input_shape=(256,256,3)
+mfcc_input_size=(256,256)
 # 训练集数据增强
 mfcc_train_datagen = ImageDataGenerator(
      rescale=1./255,
@@ -138,7 +139,7 @@ mfcc_train_generator = train_datagen.flow_from_directory(
     # 目标文件夹
     mfcc_train_dir,
     # 规范化图片大小
-    target_size=input_size,
+    target_size=mfcc_input_size,
     batch_size=batch_size,
     #shuffle=False,
     seed=2019,
@@ -147,7 +148,7 @@ mfcc_train_generator = train_datagen.flow_from_directory(
     )
 mfcc_validation_generator = test_datagen.flow_from_directory(
     mfcc_validation_dir,
-    target_size=input_size,
+    target_size=mfcc_input_size,
     batch_size=batch_size,
     shuffle=False,
     #class_mode='binary'
@@ -182,7 +183,7 @@ plt.title('model accuracy')
 plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.savefig("mix_acc.png")
+plt.savefig("model/mix/mix_acc.png")
 plt.cla()
 # summarize history for loss
 plt.plot(history.history['loss'])
@@ -191,8 +192,8 @@ plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.savefig("mix_loss.png")
+plt.savefig("model/mix/mix_loss.png")
 plt.cla()
 '''保存模型'''
-model.save("save_model_mix.h5")
-model.save_weights("save_weights_mix.h5")
+model.save("model/mix/save_model_mix.h5")
+model.save_weights("model/mix/save_weights_mix.h5")

@@ -11,6 +11,10 @@ import matplotlib.mlab as mlab
 import matplotlib
 #import librosa
 
+'''
+获得语谱图矩阵（已弃用！）
+'''
+
 '''宏定义'''
 if_plot=0  #是否绘制语谱图
 ans=np.zeros([1,512])          #当前文件夹所有数据的标注都是ans

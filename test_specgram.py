@@ -1,35 +1,19 @@
 from __future__ import print_function
-import os
-import random
-import numpy as np
-#np.random.seed(1337)  # for reproducibility
-import scipy
-from keras.datasets import mnist
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten, concatenate
-from keras.applications.inception_v3 import InceptionV3
-from keras.preprocessing import image
-from keras.models import Model
-from keras.layers import Dense, GlobalAveragePooling2D
-from keras import backend as K
-from PIL import Image
-from keras.utils.vis_utils import plot_model
 from keras_preprocessing.image import ImageDataGenerator
 from keras.models import load_model
 import numpy as np
 from keras.backend import set_learning_phase
 #set_learning_phase(1)
 
-model_dir=('save_model.h5')  #预测模型
-test_dir = r'./train/'              #预测文件夹
-
+model_dir=('model/specgram/save_model.h5')  #预测模型
+test_dir = r'./data_set/specgram/test/'              #预测文件夹
 
 model = load_model(model_dir)
 
 batch_size = 1#每批多少张图
 nb_classes = 2            #分多少类
 input_size=(80,80)
-train_dir = r'./train/'
+train_dir = r'./data_set/specgram/train/'
 train_datagen = ImageDataGenerator(
     rescale=1./255,
    # rotation_range=40,
