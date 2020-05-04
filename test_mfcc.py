@@ -12,7 +12,7 @@ model = load_model(model_dir)
 
 batch_size = 1#每批多少张图
 nb_classes = 2            #分多少类
-input_size=(80,80)
+input_size=(256,256)
 train_dir = r'./data_set/mfcc/train/'
 train_datagen = ImageDataGenerator(
     rescale=1./255,

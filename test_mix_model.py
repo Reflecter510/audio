@@ -105,5 +105,5 @@ def gen_flow_for_two_inputs(X1, X2):
         yield [X1i[0], X2i[0]], X1i[1]
 
 '''使用评估函数'''
-eva=model.evaluate_generator(gen_flow_for_two_inputs(train_generator,mfcc_train_generator),steps=vali_sum/batch_size,verbose=1)
+eva=model.evaluate_generator(gen_flow_for_two_inputs(validation_generator,mfcc_validation_generator),steps=vali_sum/batch_size,verbose=1)
 print(eva[1])

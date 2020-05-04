@@ -78,7 +78,7 @@ from keras.optimizers import SGD,rmsprop
 model.compile(optimizer=rmsprop(lr=0.0001), loss='categorical_crossentropy',metrics=['acc'])
 
 '''训练设置'''
-nb_epoch=2
+nb_epoch=20
 batch_size = 120           #每批多少张图
 nb_classes = 2            #分多少类
 
