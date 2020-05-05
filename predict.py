@@ -1,4 +1,8 @@
 from __future__ import print_function
+
+import os
+import shutil
+
 from keras_preprocessing.image import ImageDataGenerator
 from keras.models import load_model
 from feature_to_dataset import one_to_dataset
@@ -8,7 +12,7 @@ class Prediction:
     model = ""
     input_shape = (256, 256, 3)
     input_size = (256, 256)
-    batch_size = 120  # 每批多少张图
+    batch_size = 5  # 每批多少张图
 
     def __init__(self,model_dir="model/mix/save_model_mix.h5",width=256,height=256):
         self.model = load_model(model_dir)
@@ -16,7 +20,12 @@ class Prediction:
         self.input_size = (width,height)
 
     def predict(self,audio_dir = "data_audio/prediction"):
+
+        clear_folder(os.path.join(audio_dir,"specgram/data"))
+        clear_folder(os.path.join(audio_dir,"mfcc/data"))
+
         one_to_dataset(audio_dir,audio_dir,audio_dir)
+
         specgram_generator, mfcc_generator=self.gen_one_inputs(audio_dir)
         pred = self.model.predict_generator(gen_flow_for_two_inputs(specgram_generator,mfcc_generator),steps=len(mfcc_generator.filenames)/self.batch_size,verbose=1)
         #print(pred)
@@ -62,6 +71,18 @@ class Prediction:
             # class_mode='binary'
         )
         return specgram_generator,mfcc_generator
+
+'''删除目录下所有文件'''
+def clear_folder(filepath):
+    del_list = os.listdir(filepath)
+    #print(del_list)
+    #a = input("测试：")
+    for f in del_list:
+        file_path = os.path.join(filepath, f)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
 
 '''构造生成器'''
 def gen_flow_for_two_inputs(X1, X2):
