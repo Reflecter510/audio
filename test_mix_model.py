@@ -73,7 +73,7 @@ mfcc_train_datagen = ImageDataGenerator(
 )
 # 测试集
 mfcc_test_datagen = ImageDataGenerator(rescale=1./255)
-mfcc_train_generator = train_datagen.flow_from_directory(
+mfcc_train_generator = mfcc_train_datagen.flow_from_directory(
     # 目标文件夹
     mfcc_train_dir,
     # 规范化图片大小
@@ -84,7 +84,7 @@ mfcc_train_generator = train_datagen.flow_from_directory(
     # 二分类
     #class_mode='binary'
     )
-mfcc_validation_generator = test_datagen.flow_from_directory(
+mfcc_validation_generator = mfcc_test_datagen.flow_from_directory(
     mfcc_validation_dir,
     target_size=input_size,
     batch_size=batch_size,

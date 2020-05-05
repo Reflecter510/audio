@@ -174,7 +174,7 @@ def normalize(x, axis=0):
 def Xdb (y1,gen_data=True):
     ''' 频谱图'''
     X = librosa.stft(y1.y)
-    Xdb = librosa.amplitude_to_db(abs(X))            # 获得语谱图
+    Xdb = librosa.amplitude_to_db(abs(X),ref=np.max)            # 获得语谱图
     if gen_data==False:
         plt.figure(figsize=(14, 5))
     librosa.display.specshow(Xdb, sr=y1.sr, x_axis='time', y_axis='hz')   # 绘制语谱图
@@ -216,23 +216,23 @@ def Spectral_Rolloff(y1):
 
 
 if __name__=="__main__":
-    file_path='data_audio/霸王别姬.wav'
+    file_path='data_audio/is/堂春-105.wav'
     #file_path = '测试.wav'
     y1=PreProcess(file_path)
 
-    #ifPlot=True                                          #是否绘制图像
+    ifPlot=True                                          #是否绘制图像
 #########################################预处理
     y1.y,y1.sr=y1.sampling(file_path,ifPlot=False,sr=None) #采样
-    y1.pre_emphasis( ifPlot=False )                        #预增强
+    '''y1.pre_emphasis( ifPlot=False )                        #预增强
     y1.enframe(nw=256,inc=128, ifPlot=False )              #分帧
     y1.force_window( ifPlot=False )                        #加窗
 
 #########################################特征提取
-    '''短时平均能量和短时平均过零率的特征提取在zcr中  '''
+    短时平均能量和短时平均过零率的特征提取在zcr中  
     wave_data= zcr.load_wave_data(file_path)
     zcr.calEnergy(wave_data)                                #短时平均能量
     zeroCrossingRate = zcr.calZeroCrossingRate(wave_data)   #短时平均过零率
-
+    '''
     y1.sampling(y1.file_path)
     Xdb(y1)                                                 #频谱图
     Spectral_Centroids(y1)                                  #频谱质心
